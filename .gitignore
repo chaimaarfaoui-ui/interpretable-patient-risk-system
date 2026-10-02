@@ -1,0 +1,17 @@
+# Raw data isn't ours to redistribute -- see README for the download link
+data/raw/*
+!data/raw/.gitkeep
+# Processed data is fully regenerable from src/data_pipeline.py
+data/processed/*
+!data/processed/.gitkeep
+# Binary model artifact -- regenerable from src/train_baseline.py
+models/*.pkl
+# Generated intermediate outputs -- regenerable from src/explainability.py
+# and src/generate_review_queue.py
+outputs/shap_sample.npz
+
+__pycache__/
+*.pyc
+.DS_Store
+   docs/
+   course_guide.pdf

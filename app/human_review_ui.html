@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Readmission Risk Review Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3F5F4;
+    --panel: #FFFFFF;
+    --ink: #16221F;
+    --ink-soft: #4B5A56;
+    --line: #DDE4E1;
+    --teal: #1F5C54;
+    --teal-soft: #E5EFEC;
+    --amber: #92640B;
+    --amber-soft: #FBF0DC;
+    --rose: #8C2F2F;
+    --rose-soft: #F7E6E4;
+    --focus: #1F5C54;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121815; --panel: #1A2320; --ink: #EAEFEC; --ink-soft: #A9B6B1;
+      --line: #2B3733; --teal: #6FBBAD; --teal-soft: #1E2E2A;
+      --amber: #E4B65A; --amber-soft: #2E2716; --rose: #E39089; --rose-soft: #302020;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121815; --panel: #1A2320; --ink: #EAEFEC; --ink-soft: #A9B6B1;
+    --line: #2B3733; --teal: #6FBBAD; --teal-soft: #1E2E2A;
+    --amber: #E4B65A; --amber-soft: #2E2716; --rose: #E39089; --rose-soft: #302020;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 28px 20px 60px; }
+  .masthead {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 22px; gap: 12px; flex-wrap: wrap;
+  }
+  .masthead h1 { font-size: 1.15rem; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .masthead .sub { font-size: 0.82rem; color: var(--ink-soft); margin-top: 2px; }
+  .progress-pill {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem;
+    color: var(--teal); background: var(--teal-soft);
+    padding: 4px 10px; border-radius: 100px; white-space: nowrap;
+  }
+  .progress-track {
+    height: 3px; background: var(--line); border-radius: 3px; margin-bottom: 26px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: var(--teal); transition: width 0.3s ease; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 22px 22px 20px;
+  }
+
+  .gate-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .badge {
+    font-size: 0.72rem; font-weight: 500; padding: 3px 9px; border-radius: 100px;
+    background: var(--amber-soft); color: var(--amber); border: 1px solid transparent;
+  }
+  .badge.anomaly { background: var(--rose-soft); color: var(--rose); }
+
+  .patient-id { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 2px; }
+  .patient-line { font-size: 1.02rem; font-weight: 500; margin-bottom: 18px; }
+  .patient-line .diag { color: var(--ink-soft); font-weight: 400; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 8px;
+    overflow: hidden; margin-bottom: 20px;
+  }
+  .stat { background: var(--panel); padding: 10px 12px; }
+  .stat .n { font-family: 'IBM Plex Mono', monospace; font-size: 1.05rem; font-weight: 500; }
+  .stat .l { font-size: 0.68rem; color: var(--ink-soft); margin-top: 2px; }
+
+  .risk-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .risk-ring {
+    width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; font-weight: 500;
+    border: 3px solid var(--amber); color: var(--amber);
+  }
+  .risk-label { font-size: 0.82rem; color: var(--ink-soft); }
+  .risk-label strong { color: var(--ink); font-weight: 500; }
+
+  .reasons { margin-bottom: 22px; }
+  .reasons .h { font-size: 0.72rem; text-transform: none; color: var(--ink-soft); margin-bottom: 8px; }
+  .reasons ul { margin: 0; padding: 0; list-style: none; }
+  .reasons li {
+    font-size: 0.87rem; padding: 7px 0; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; align-items: baseline;
+  }
+  .reasons li:first-child { border-top: none; }
+  .dir { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; flex-shrink: 0; width: 14px; }
+  .dir.up { color: var(--rose); } .dir.down { color: var(--teal); }
+
+  .actions { display: flex; gap: 10px; margin-bottom: 4px; }
+  button {
+    font-family: inherit; font-size: 0.88rem; font-weight: 500;
+    border-radius: 7px; padding: 11px 14px; cursor: pointer; border: 1px solid transparent;
+    flex: 1; transition: opacity 0.15s ease;
+  }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  button:active { opacity: 0.85; }
+  .btn-approve { background: var(--teal); color: #fff; }
+  .btn-override { background: transparent; color: var(--rose); border-color: var(--rose); }
+
+  .override-box { display: none; margin-bottom: 14px; }
+  .override-box.show { display: block; }
+  .override-box textarea {
+    width: 100%; font-family: inherit; font-size: 0.85rem; padding: 9px 10px;
+    border: 1px solid var(--line); border-radius: 7px; resize: vertical; min-height: 52px;
+    background: var(--bg); color: var(--ink);
+  }
+  .override-box .confirm { margin-top: 8px; width: 100%; background: var(--rose); color: #fff; }
+
+  .reveal {
+    display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line);
+    font-size: 0.85rem;
+  }
+  .reveal.show { display: block; }
+  .reveal .outcome { font-weight: 500; }
+  .next-btn { margin-top: 14px; width: 100%; background: var(--ink); color: var(--bg); display: none; }
+  .next-btn.show { display: block; }
+
+  .summary { text-align: center; padding: 10px 4px 4px; }
+  .summary h2 { font-size: 1.1rem; margin: 0 0 6px; }
+  .summary p { font-size: 0.86rem; color: var(--ink-soft); margin: 0 0 20px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+  .summary-grid .stat { padding: 16px 10px; }
+  .summary-grid .n { font-size: 1.3rem; }
+  .log-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-bottom: 20px; }
+  .log-table th, .log-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .log-table th { color: var(--ink-soft); font-weight: 500; font-size: 0.7rem; }
+  .decision-approve { color: var(--teal); }
+  .decision-override { color: var(--rose); }
+  .export-btn { background: var(--teal); color: #fff; width: 100%; }
+  .footnote { font-size: 0.76rem; color: var(--ink-soft); text-align: center; margin-top: 22px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div>
+      <h1>Readmission Risk — Review Queue</h1>
+      <div class="sub">Cases routed here by the confidence / anomaly / high-stakes gate</div>
+    </div>
+    <div class="progress-pill" id="progressPill">Case 1 of 18</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width: 5.5%;"></div></div>
+
+  <div class="card" id="reviewCard"></div>
+
+  <div class="footnote">Simulated review queue for a portfolio project — not a clinical decision support tool.</div>
+</div>
+
+<script>
+const CASES = [{"id": 62988489, "age": "[50-60)", "gender": "Female", "admission_type_id": 6, "time_in_hospital": 7, "num_medications": 24, "number_inpatient": 2, "number_diagnoses": 9, "diag_1_group": "Genitourinary", "predicted_risk": 0.596, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "total prior visits increased risk", "discharge disposition (where they're sent after leaving) decreased risk"], "actual_outcome": "Readmitted <30d"}, {"id": 64922733, "age": "[70-80)", "gender": "Male", "admission_type_id": 2, "time_in_hospital": 3, "num_medications": 8, "number_inpatient": 0, "number_diagnoses": 6, "diag_1_group": "Injury", "predicted_risk": 0.509, "is_anomaly": false, "gate_reasons": ["Low model confidence"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk", "currently on diabetes medication decreased risk"], "actual_outcome": "Readmitted <30d"}, {"id": 88544232, "age": "[70-80)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 5, "num_medications": 16, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Digestive", "predicted_risk": 0.49, "is_anomaly": false, "gate_reasons": ["Low model confidence"], "top_reasons": ["discharge disposition (where they're sent after leaving) decreased risk", "total prior visits increased risk", "prior inpatient stays decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 72701703, "age": "[80-90)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 5, "num_medications": 11, "number_inpatient": 1, "number_diagnoses": 9, "diag_1_group": "Circulatory", "predicted_risk": 0.606, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk"], "actual_outcome": "Not readmitted"}, {"id": 64898442, "age": "[80-90)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 6, "num_medications": 18, "number_inpatient": 1, "number_diagnoses": 9, "diag_1_group": "Respiratory", "predicted_risk": 0.605, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk"], "actual_outcome": "Not readmitted"}, {"id": 57509883, "age": "[80-90)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 4, "num_medications": 18, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Injury", "predicted_risk": 0.576, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "age bracket [80-90) increased risk", "number of medications increased risk"], "actual_outcome": "Not readmitted"}, {"id": 80041266, "age": "[80-90)", "gender": "Female", "admission_type_id": 6, "time_in_hospital": 9, "num_medications": 17, "number_inpatient": 0, "number_diagnoses": 7, "diag_1_group": "Circulatory", "predicted_risk": 0.507, "is_anomaly": false, "gate_reasons": ["Low model confidence"], "top_reasons": ["discharge disposition (where they're sent after leaving) decreased risk", "length of this hospital stay increased risk", "medical specialty Cardiology decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 41290605, "age": "[80-90)", "gender": "Male", "admission_type_id": 3, "time_in_hospital": 14, "num_medications": 36, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Other", "predicted_risk": 0.572, "is_anomaly": true, "gate_reasons": ["Anomaly flagged (Module 3)", "High-stakes prediction"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk", "prior inpatient stays decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 4017933, "age": "[60-70)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 4, "num_medications": 12, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Digestive", "predicted_risk": 0.51, "is_anomaly": false, "gate_reasons": ["Low model confidence"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "total prior visits decreased risk", "prior inpatient stays decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 73336464, "age": "[70-80)", "gender": "Female", "admission_type_id": 1, "time_in_hospital": 1, "num_medications": 17, "number_inpatient": 1, "number_diagnoses": 9, "diag_1_group": "Digestive", "predicted_risk": 0.606, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk"], "actual_outcome": "Readmitted <30d"}, {"id": 24011010, "age": "[80-90)", "gender": "Female", "admission_type_id": 3, "time_in_hospital": 6, "num_medications": 18, "number_inpatient": 5, "number_diagnoses": 9, "diag_1_group": "Digestive", "predicted_risk": 0.639, "is_anomaly": true, "gate_reasons": ["Anomaly flagged (Module 3)", "High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "total prior visits increased risk", "discharge disposition (where they're sent after leaving) increased risk"], "actual_outcome": "Not readmitted"}, {"id": 97210863, "age": "[70-80)", "gender": "Female", "admission_type_id": 5, "time_in_hospital": 5, "num_medications": 20, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Respiratory", "predicted_risk": 0.548, "is_anomaly": true, "gate_reasons": ["Anomaly flagged (Module 3)"], "top_reasons": ["total prior visits increased risk", "discharge disposition (where they're sent after leaving) increased risk", "number outpatient decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 135352805, "age": "[70-80)", "gender": "Male", "admission_type_id": 3, "time_in_hospital": 5, "num_medications": 23, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Circulatory", "predicted_risk": 0.568, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk", "prior inpatient stays decreased risk"], "actual_outcome": "Readmitted <30d"}, {"id": 65035323, "age": "[60-70)", "gender": "Male", "admission_type_id": 1, "time_in_hospital": 10, "num_medications": 42, "number_inpatient": 0, "number_diagnoses": 7, "diag_1_group": "Circulatory", "predicted_risk": 0.568, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "length of this hospital stay increased risk", "prior inpatient stays decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 99594009, "age": "[70-80)", "gender": "Female", "admission_type_id": 1, "time_in_hospital": 8, "num_medications": 17, "number_inpatient": 0, "number_diagnoses": 9, "diag_1_group": "Circulatory", "predicted_risk": 0.589, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk", "length of this hospital stay increased risk"], "actual_outcome": "Not readmitted"}, {"id": 23691519, "age": "[50-60)", "gender": "Female", "admission_type_id": 6, "time_in_hospital": 1, "num_medications": 13, "number_inpatient": 0, "number_diagnoses": 6, "diag_1_group": "Respiratory", "predicted_risk": 0.522, "is_anomaly": true, "gate_reasons": ["Anomaly flagged (Module 3)"], "top_reasons": ["total prior visits increased risk", "discharge disposition (where they're sent after leaving) increased risk", "age bracket [50-60) decreased risk"], "actual_outcome": "Not readmitted"}, {"id": 5555502, "age": "[80-90)", "gender": "Female", "admission_type_id": 1, "time_in_hospital": 14, "num_medications": 23, "number_inpatient": 1, "number_diagnoses": 5, "diag_1_group": "Circulatory", "predicted_risk": 0.587, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk"], "actual_outcome": "Not readmitted"}, {"id": 56701899, "age": "[80-90)", "gender": "Female", "admission_type_id": 1, "time_in_hospital": 4, "num_medications": 12, "number_inpatient": 1, "number_diagnoses": 9, "diag_1_group": "Circulatory", "predicted_risk": 0.576, "is_anomaly": false, "gate_reasons": ["High-stakes prediction"], "top_reasons": ["prior inpatient stays increased risk", "discharge disposition (where they're sent after leaving) increased risk", "total prior visits increased risk"], "actual_outcome": "Not readmitted"}];
+
+let idx = 0;
+let decided = false;
+let decisions = [];
+
+// --- persistence (per-viewer, this browser only) ---
+function loadState() {
+  try {
+    const raw = localStorage.getItem('rr_decisions_v1');
+    if (raw) decisions = JSON.parse(raw);
+  } catch (e) { decisions = []; }
+}
+function saveState() {
+  try { localStorage.setItem('rr_decisions_v1', JSON.stringify(decisions)); } catch (e) {}
+}
+loadState();
+// resume where left off if this browser already has decisions for some cases
+const decidedIds = new Set(decisions.map(d => d.id));
+while (idx < CASES.length && decidedIds.has(CASES[idx].id)) idx++;
+
+function riskColor(risk) {
+  if (risk >= 0.58) return 'var(--rose)';
+  if (risk >= 0.50) return 'var(--amber)';
+  return 'var(--teal)';
+}
+
+function render() {
+  if (idx >= CASES.length) { renderSummary(); return; }
+  decided = false;
+  const c = CASES[idx];
+  document.getElementById('progressPill').textContent = `Case ${idx+1} of ${CASES.length}`;
+  document.getElementById('progressFill').style.width = `${((idx+1)/CASES.length*100).toFixed(1)}%`;
+
+  const badges = c.gate_reasons.map(r =>
+    `<span class="badge ${r.includes('Anomaly') ? 'anomaly' : ''}">${r}</span>`
+  ).join('');
+
+  const reasonsHtml = c.top_reasons.map(r => {
+    const up = r.includes('increased');
+    return `<li><span class="dir ${up ? 'up' : 'down'}">${up ? '▲' : '▼'}</span>${r}</li>`;
+  }).join('');
+
+  const rc = riskColor(c.predicted_risk);
+
+  document.getElementById('reviewCard').innerHTML = `
+    <div class="gate-badges">${badges}</div>
+    <div class="patient-id">Patient #${c.id}</div>
+    <div class="patient-line">${c.age.replace('[','').replace(')','')} yo ${c.gender.toLowerCase()} &middot; <span class="diag">${c.diag_1_group} primary diagnosis</span></div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="n">${c.time_in_hospital}d</div><div class="l">In hospital</div></div>
+      <div class="stat"><div class="n">${c.num_medications}</div><div class="l">Medications</div></div>
+      <div class="stat"><div class="n">${c.number_inpatient}</div><div class="l">Prior inpatient</div></div>
+    </div>
+
+    <div class="risk-row">
+      <div class="risk-ring" style="border-color:${rc}; color:${rc};">${(c.predicted_risk*100).toFixed(0)}%</div>
+      <div class="risk-label">Model's predicted<br><strong>30-day readmission risk</strong></div>
+    </div>
+
+    <div class="reasons">
+      <div class="h">Why the model landed here</div>
+      <ul>${reasonsHtml}</ul>
+    </div>
+
+    <div class="actions" id="actionsRow">
+      <button class="btn-approve" onclick="decide('approved')">Approve model's flag</button>
+      <button class="btn-override" onclick="showOverride()">Override</button>
+    </div>
+
+    <div class="override-box" id="overrideBox">
+      <textarea id="overrideReason" placeholder="Brief clinical reason for overriding (optional)"></textarea>
+      <button class="confirm" onclick="decide('overridden')">Confirm override</button>
+    </div>
+
+    <div class="reveal" id="revealBox">
+      <div>Actual outcome on record: <span class="outcome">${c.actual_outcome}</span></div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="next()">Next case</button>
+  `;
+}
+
+function showOverride() {
+  document.getElementById('overrideBox').classList.add('show');
+  document.getElementById('actionsRow').style.display = 'none';
+}
+
+function decide(type) {
+  if (decided) return;
+  decided = true;
+  const c = CASES[idx];
+  const reasonEl = document.getElementById('overrideReason');
+  decisions.push({
+    id: c.id,
+    predicted_risk: c.predicted_risk,
+    gate_reasons: c.gate_reasons.join('; '),
+    decision: type,
+    override_reason: type === 'overridden' ? (reasonEl ? reasonEl.value : '') : '',
+    actual_outcome: c.actual_outcome,
+    timestamp: new Date().toISOString(),
+  });
+  saveState();
+  document.getElementById('actionsRow').style.display = 'none';
+  document.getElementById('overrideBox').classList.remove('show');
+  document.getElementById('revealBox').classList.add('show');
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function next() {
+  idx++;
+  render();
+}
+
+function renderSummary() {
+  const total = decisions.length;
+  const overridden = decisions.filter(d => d.decision === 'overridden').length;
+  const approved = total - overridden;
+  const rows = decisions.map(d => `
+    <tr>
+      <td>${d.id}</td>
+      <td>${(d.predicted_risk*100).toFixed(0)}%</td>
+      <td class="decision-${d.decision === 'approved' ? 'approve' : 'override'}">${d.decision === 'approved' ? 'Approved' : 'Overridden'}</td>
+      <td>${d.actual_outcome}</td>
+    </tr>`).join('');
+
+  document.getElementById('reviewCard').innerHTML = `
+    <div class="summary">
+      <h2>Review queue complete</h2>
+      <p>${total} cases reviewed this session &mdash; every decision below is logged for retraining feedback.</p>
+      <div class="summary-grid">
+        <div class="stat"><div class="n">${total}</div><div class="l">Reviewed</div></div>
+        <div class="stat"><div class="n">${approved}</div><div class="l">Approved</div></div>
+        <div class="stat"><div class="n">${overridden}</div><div class="l">Overridden</div></div>
+      </div>
+      <table class="log-table">
+        <thead><tr><th>Patient</th><th>Risk</th><th>Decision</th><th>Actual outcome</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <button class="export-btn" onclick="exportCsv()">Download decision log (CSV)</button>
+      <button style="margin-top:8px; background:transparent; border:1px solid var(--line); color:var(--ink-soft);" onclick="resetAll()">Reset session</button>
+    </div>
+  `;
+  document.getElementById('progressPill').textContent = `${total} of ${CASES.length} complete`;
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function exportCsv() {
+  const header = ['patient_id','predicted_risk','gate_reasons','decision','override_reason','actual_outcome','timestamp'];
+  const lines = [header.join(',')];
+  decisions.forEach(d => {
+    const row = [d.id, d.predicted_risk, `"${d.gate_reasons}"`, d.decision, `"${(d.override_reason||'').replace(/"/g,'""')}"`, d.actual_outcome, d.timestamp];
+    lines.push(row.join(','));
+  });
+  const blob = new Blob([lines.join('\\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'decision_log.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function resetAll() {
+  decisions = [];
+  saveState();
+  idx = 0;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
