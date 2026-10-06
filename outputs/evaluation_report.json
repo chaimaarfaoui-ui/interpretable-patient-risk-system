@@ -1,0 +1,318 @@
+{
+  "headline": {
+    "point": {
+      "auroc": 0.6382023421646923,
+      "auprc": 0.15557277245632148,
+      "brier": 0.08013744043351415,
+      "precision": 0.1603415559772296,
+      "recall": 0.359192348565356
+    },
+    "ci95": {
+      "auroc": [
+        0.6199478007760865,
+        0.6555051430284264
+      ],
+      "auprc": [
+        0.1409126798376751,
+        0.1747001251964701
+      ],
+      "brier": [
+        0.07615807039253514,
+        0.08450363470484921
+      ],
+      "precision": [
+        0.14482731616485786,
+        0.17574071742538175
+      ],
+      "recall": [
+        0.33013214017860976,
+        0.38942315778408493
+      ]
+    },
+    "n": 10496,
+    "prevalence": 0.0896532012195122,
+    "mean_predicted_risk": 0.08948182262753776,
+    "brier_baseline_base_rate": 0.08161550776143885,
+    "decision_threshold": 0.10847733008758058,
+    "share_flagged": 0.20083841463414634,
+    "lift_at_threshold": 1.7884643693273132
+  },
+  "reliability": [
+    {
+      "index": "decile 1",
+      "n": 1050,
+      "mean_predicted": 0.058543238078658376,
+      "actual_rate": 0.03428571428571429
+    },
+    {
+      "index": "decile 2",
+      "n": 1050,
+      "mean_predicted": 0.06625022553386278,
+      "actual_rate": 0.06
+    },
+    {
+      "index": "decile 3",
+      "n": 1049,
+      "mean_predicted": 0.07167136845728941,
+      "actual_rate": 0.0657769304099142
+    },
+    {
+      "index": "decile 4",
+      "n": 1050,
+      "mean_predicted": 0.07681666016877199,
+      "actual_rate": 0.06190476190476191
+    },
+    {
+      "index": "decile 5",
+      "n": 1049,
+      "mean_predicted": 0.08266912025360867,
+      "actual_rate": 0.07340324118207817
+    },
+    {
+      "index": "decile 6",
+      "n": 1050,
+      "mean_predicted": 0.08919779813664418,
+      "actual_rate": 0.0838095238095238
+    },
+    {
+      "index": "decile 7",
+      "n": 1049,
+      "mean_predicted": 0.09656070653195892,
+      "actual_rate": 0.0877025738798856
+    },
+    {
+      "index": "decile 8",
+      "n": 1050,
+      "mean_predicted": 0.10439739487527186,
+      "actual_rate": 0.10761904761904761
+    },
+    {
+      "index": "decile 9",
+      "n": 1049,
+      "mean_predicted": 0.11290041824264772,
+      "actual_rate": 0.12774070543374644
+    },
+    {
+      "index": "decile 10",
+      "n": 1050,
+      "mean_predicted": 0.13581689058997368,
+      "actual_rate": 0.19428571428571428
+    }
+  ],
+  "gate_buckets": [
+    {
+      "index": "Low confidence (near threshold)",
+      "n": 1090,
+      "share": 0.10384908536585366,
+      "readmit_rate": 0.12018348623853212,
+      "mean_predicted": 0.10835256760390646,
+      "accuracy_at_threshold": 0.501834862385321
+    },
+    {
+      "index": "Anomaly flagged",
+      "n": 218,
+      "share": 0.020769817073170733,
+      "readmit_rate": 0.1834862385321101,
+      "mean_predicted": 0.13201262175599177,
+      "accuracy_at_threshold": 0.37155963302752293
+    },
+    {
+      "index": "High stakes (top risk)",
+      "n": 817,
+      "share": 0.07783917682926829,
+      "readmit_rate": 0.204406364749082,
+      "mean_predicted": 0.14021308313586248,
+      "accuracy_at_threshold": 0.204406364749082
+    },
+    {
+      "index": "ANY gate -> human review",
+      "n": 1976,
+      "share": 0.18826219512195122,
+      "readmit_rate": 0.15435222672064777,
+      "mean_predicted": 0.1212056592887965,
+      "accuracy_at_threshold": 0.3805668016194332
+    },
+    {
+      "index": "No gate -> auto-handled",
+      "n": 8520,
+      "share": 0.8117378048780488,
+      "readmit_rate": 0.07464788732394366,
+      "mean_predicted": 0.08212427553333035,
+      "accuracy_at_threshold": 0.8651408450704225
+    }
+  ],
+  "subgroups": {
+    "gender": [
+      {
+        "group": "Female",
+        "n": 5585,
+        "readmit_rate": 0.09113697403760071,
+        "mean_predicted": 0.09051122828626577,
+        "flag_rate": 0.22041181736794987,
+        "recall": 0.38703339882121807,
+        "auroc": 0.6504622856355499
+      },
+      {
+        "group": "Male",
+        "n": 4911,
+        "readmit_rate": 0.08796579108124618,
+        "mean_predicted": 0.08831113832617431,
+        "flag_rate": 0.17857870087558542,
+        "recall": 0.3263888888888889,
+        "auroc": 0.622482593667568
+      }
+    ],
+    "age": [
+      {
+        "group": "[0-10)",
+        "n": 24,
+        "readmit_rate": 0.0,
+        "mean_predicted": 0.058241863157757257,
+        "flag_rate": 0.0,
+        "recall": null,
+        "auroc": null
+      },
+      {
+        "group": "[10-20)",
+        "n": 80,
+        "readmit_rate": 0.0625,
+        "mean_predicted": 0.07329656707088916,
+        "flag_rate": 0.0625,
+        "recall": 0.2,
+        "auroc": null
+      },
+      {
+        "group": "[20-30)",
+        "n": 155,
+        "readmit_rate": 0.05161290322580645,
+        "mean_predicted": 0.07803273625374048,
+        "flag_rate": 0.07096774193548387,
+        "recall": 0.375,
+        "auroc": null
+      },
+      {
+        "group": "[30-40)",
+        "n": 407,
+        "readmit_rate": 0.04914004914004914,
+        "mean_predicted": 0.07996825050369477,
+        "flag_rate": 0.10319410319410319,
+        "recall": 0.3,
+        "auroc": null
+      },
+      {
+        "group": "[40-50)",
+        "n": 994,
+        "readmit_rate": 0.06941649899396378,
+        "mean_predicted": 0.08182566103804552,
+        "flag_rate": 0.11468812877263582,
+        "recall": 0.21739130434782608,
+        "auroc": 0.6038542890716804
+      },
+      {
+        "group": "[50-60)",
+        "n": 1859,
+        "readmit_rate": 0.07638515330823023,
+        "mean_predicted": 0.08019274308626989,
+        "flag_rate": 0.08660570199031738,
+        "recall": 0.2323943661971831,
+        "auroc": 0.6477806852764811
+      },
+      {
+        "group": "[60-70)",
+        "n": 2414,
+        "readmit_rate": 0.08326429163214581,
+        "mean_predicted": 0.08869722520350916,
+        "flag_rate": 0.17978458989229495,
+        "recall": 0.31343283582089554,
+        "auroc": 0.604447262107897
+      },
+      {
+        "group": "[70-80)",
+        "n": 2608,
+        "readmit_rate": 0.11196319018404909,
+        "mean_predicted": 0.09469023980462109,
+        "flag_rate": 0.26380368098159507,
+        "recall": 0.4349315068493151,
+        "auroc": 0.6362913147372654
+      },
+      {
+        "group": "[80-90)",
+        "n": 1666,
+        "readmit_rate": 0.10384153661464586,
+        "mean_predicted": 0.1008920924798761,
+        "flag_rate": 0.35294117647058826,
+        "recall": 0.4624277456647399,
+        "auroc": 0.6063053401422438
+      },
+      {
+        "group": "[90-100)",
+        "n": 289,
+        "readmit_rate": 0.10726643598615918,
+        "mean_predicted": 0.09595515069361962,
+        "flag_rate": 0.22491349480968859,
+        "recall": 0.3225806451612903,
+        "auroc": null
+      }
+    ],
+    "race": [
+      {
+        "group": "AfricanAmerican",
+        "n": 1886,
+        "readmit_rate": 0.08960763520678686,
+        "mean_predicted": 0.08599625854570106,
+        "flag_rate": 0.14687168610816542,
+        "recall": 0.28402366863905326,
+        "auroc": 0.6464212728268999
+      },
+      {
+        "group": "Asian",
+        "n": 73,
+        "readmit_rate": 0.1232876712328767,
+        "mean_predicted": 0.08650493456658183,
+        "flag_rate": 0.1917808219178082,
+        "recall": 0.5555555555555556,
+        "auroc": null
+      },
+      {
+        "group": "Caucasian",
+        "n": 7857,
+        "readmit_rate": 0.09176530482372407,
+        "mean_predicted": 0.09062365314428451,
+        "flag_rate": 0.2171312205676467,
+        "recall": 0.3786407766990291,
+        "auroc": 0.6332704639172052
+      },
+      {
+        "group": "Hispanic",
+        "n": 221,
+        "readmit_rate": 0.06334841628959276,
+        "mean_predicted": 0.08862342733426974,
+        "flag_rate": 0.20361990950226244,
+        "recall": 0.42857142857142855,
+        "auroc": null
+      },
+      {
+        "group": "Missing",
+        "n": 279,
+        "readmit_rate": 0.06451612903225806,
+        "mean_predicted": 0.08493529039380707,
+        "flag_rate": 0.12903225806451613,
+        "recall": 0.16666666666666666,
+        "auroc": null
+      },
+      {
+        "group": "Other",
+        "n": 180,
+        "readmit_rate": 0.05555555555555555,
+        "mean_predicted": 0.08547022357052493,
+        "flag_rate": 0.16666666666666666,
+        "recall": 0.3,
+        "auroc": null
+      }
+    ]
+  },
+  "gate_cutoffs_from_val": {
+    "high_stakes": 0.12247866941408579,
+    "low_conf_halfwidth": 0.004249897905378448
+  }
+}

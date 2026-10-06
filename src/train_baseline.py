@@ -4,6 +4,10 @@ train_baseline.py
 Re-creates the Module 2 baseline: Logistic Regression + Random Forest on
 the processed UCI readmission data. We keep Random Forest as the model
 going forward (Module 4 explains it with SHAP).
+
+Note: class weighting is intentionally NOT used. With class_weight="balanced"
+predicted probabilities get pushed toward 0.5 and stop reflecting the real
+~9% readmission rate. Without it, predicted risk is a meaningful probability.
 """
 
 import pickle
@@ -13,14 +17,16 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score, classification_report
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import roc_auc_score, classification_report, brier_score_loss
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"
 MODEL_PATH = ROOT / "models" / "rf_model.pkl"
 
-DROP_FOR_MODEL = ["readmitted_30d", "patient_nbr", "anomaly_score", "is_anomaly"]
+DROP_FOR_MODEL = ["readmitted_30d",
+                  "patient_nbr", "anomaly_score", "is_anomaly"]
 
 
 def load():
@@ -31,7 +37,8 @@ def load():
 
 def build_xy(train, val):
     feature_cols = [c for c in train.columns if c not in DROP_FOR_MODEL]
-    cat_cols = [c for c in feature_cols if not pd.api.types.is_numeric_dtype(train[c])]
+    cat_cols = [
+        c for c in feature_cols if not pd.api.types.is_numeric_dtype(train[c])]
     num_cols = [c for c in feature_cols if c not in cat_cols]
 
     encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
@@ -50,15 +57,17 @@ def build_xy(train, val):
 
 def run():
     train, val = load()
-    X_train, X_val, y_train, y_val, feature_names, encoder, num_cols, cat_cols = build_xy(train, val)
+    X_train, X_val, y_train, y_val, feature_names, encoder, num_cols, cat_cols = build_xy(
+        train, val)
 
-    logreg = LogisticRegression(max_iter=1000, class_weight="balanced")
+    # Scaling fixes the ConvergenceWarning; no class weights so probabilities stay honest
+    logreg = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
     logreg.fit(X_train, y_train)
     logreg_auc = roc_auc_score(y_val, logreg.predict_proba(X_val)[:, 1])
 
     rf = RandomForestClassifier(
         n_estimators=300, max_depth=8, min_samples_leaf=20,
-        class_weight="balanced", random_state=42, n_jobs=-1,
+        random_state=42, n_jobs=-1,  # class_weight removed
     )
     rf.fit(X_train, y_train)
     rf_proba = rf.predict_proba(X_val)[:, 1]
@@ -66,9 +75,17 @@ def run():
 
     print(f"Logistic Regression AUROC: {logreg_auc:.3f}")
     print(f"Random Forest AUROC:       {rf_auc:.3f}")
-    print("\nRandom Forest classification report (val, threshold=0.5):")
-    print(classification_report(y_val, (rf_proba >= 0.5).astype(int),
-                                 target_names=["No Readmit", "Readmit"]))
+    print(f"\nCalibration check (val): mean predicted risk {rf_proba.mean():.3f} "
+          f"vs actual rate {y_val.mean():.3f} | "
+          f"Brier score {brier_score_loss(y_val, rf_proba):.4f}")
+
+    # With a ~9% base rate, 0.5 is no longer a meaningful cutoff.
+    # Flag the top 20% highest-risk patients instead.
+    threshold = float(np.quantile(rf_proba, 0.80))
+    print(
+        f"\nRandom Forest classification report (val, threshold={threshold:.3f}):")
+    print(classification_report(y_val, (rf_proba >= threshold).astype(int),
+                                target_names=["No Readmit", "Readmit"]))
 
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(MODEL_PATH, "wb") as f:
@@ -76,6 +93,7 @@ def run():
             "model": rf, "encoder": encoder,
             "num_cols": num_cols, "cat_cols": cat_cols,
             "feature_names": feature_names,
+            "threshold": threshold,
         }, f)
     print(f"Saved -> {MODEL_PATH}")
 
