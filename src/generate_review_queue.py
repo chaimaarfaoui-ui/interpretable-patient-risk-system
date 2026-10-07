@@ -151,6 +151,7 @@ def run():
     for i, row in sample.iterrows():
         contributions = sorted(
             zip(feature_names, shap_pos[i]), key=lambda x: abs(x[1]), reverse=True)[:3]
+        effects = [round(float(v), 4) for _, v in contributions]
         reasons = []
         for feat, val_ in contributions:
             direction = "increased" if val_ > 0 else "decreased"
@@ -170,6 +171,7 @@ def run():
             "is_anomaly": bool(row["is_anomaly"]),
             "gate_reasons": gate_reasons(row, high_stakes_cut, low_conf_cut, decision_threshold),
             "top_reasons": reasons,
+            "reason_effects": effects,
             "actual_outcome": "Readmitted <30d" if row["readmitted_30d"] == 1 else "Not readmitted",
         })
 
