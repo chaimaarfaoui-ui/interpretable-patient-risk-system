@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 import shap
 
+from risk_model import calibrate, local_slope
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"
 MODEL_PATH = ROOT / "models" / "rf_model.pkl"
@@ -65,7 +67,8 @@ def run():
 
     # Explain a sample of the val set (SHAP on the full RF can be slow --
     # 1500 patients is plenty to get a reliable global picture).
-    sample_idx = np.random.RandomState(42).choice(len(X_val), size=min(1500, len(X_val)), replace=False)
+    sample_idx = np.random.RandomState(42).choice(
+        len(X_val), size=min(1500, len(X_val)), replace=False)
     X_sample = X_val[sample_idx]
 
     shap_values = explainer.shap_values(X_sample)
@@ -82,15 +85,24 @@ def run():
 
     # --- Global importance: mean absolute SHAP value per feature ---
     mean_abs = np.abs(shap_pos).mean(axis=0)
-    global_importance = sorted(zip(feature_names, mean_abs), key=lambda x: x[1], reverse=True)
+    global_importance = sorted(
+        zip(feature_names, mean_abs), key=lambda x: x[1], reverse=True)
 
-    print(f"\nBase rate (average predicted risk across the sample): {base_value:.3f}")
+    # SHAP works on the raw forest. Show everything on the calibrated scale so the
+    # reasons match the displayed risk (contributions are rescaled by the local slope
+    # of the calibration curve, which is an approximation).
+    cal = bundle.get("calibration")
+    raw_sample = model.predict_proba(X_sample)[:, 1]
+    slopes = local_slope(cal, raw_sample)
+    base_cal = float(calibrate(cal, np.array([base_value]))[0])
+
+    print(f"\nBase rate (average predicted risk, calibrated): {base_cal:.3f}")
     print("\n--- Global feature importance (top 10, mean |SHAP value|) ---")
     for feat, imp in global_importance[:10]:
         print(f"  {feat:<30} {imp:.4f}")
 
     # --- Individual explanations: pick a few interesting patients ---
-    proba = model.predict_proba(X_sample)[:, 1]
+    proba = calibrate(cal, raw_sample)
     val_sample = val.iloc[sample_idx].reset_index(drop=True)
 
     # Show the highest-risk patient, the highest anomaly-flagged patient,
@@ -100,7 +112,8 @@ def run():
     if "is_anomaly" in val_sample.columns and val_sample["is_anomaly"].sum() > 0:
         anomaly_candidates = val_sample.index[val_sample["is_anomaly"] == 1]
         picks["Flagged anomaly (from Module 3)"] = int(anomaly_candidates[0])
-    picks["A typical / average-risk patient"] = int(np.argmin(np.abs(proba - proba.mean())))
+    picks["A typical / average-risk patient"] = int(
+        np.argmin(np.abs(proba - proba.mean())))
 
     print("\n--- Individual patient explanations ---")
     for label, i in picks.items():
@@ -108,7 +121,7 @@ def run():
         print(f"  Predicted risk: {proba[i]:.1%}   "
               f"(Actual outcome: {'Readmitted <30d' if val_sample.loc[i, 'readmitted_30d'] == 1 else 'Not readmitted'})")
         print("  Top reasons:")
-        for line in explain_patient(shap_pos[i], feature_names, val_sample.loc[i], base_value):
+        for line in explain_patient(shap_pos[i] * slopes[i], feature_names, val_sample.loc[i], base_cal):
             print(line)
 
     # Save global importance + the sampled SHAP values for reuse in Module 5

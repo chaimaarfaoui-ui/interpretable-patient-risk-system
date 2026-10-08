@@ -25,6 +25,7 @@ import pandas as pd
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 
 from generate_review_queue import HIGH_STAKES_PERCENTILE, LOW_CONF_PERCENTILE, build_X
+from risk_model import predict_risk
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"
@@ -38,7 +39,7 @@ SUBGROUP_COLUMNS = ["gender", "age", "race"]
 
 
 def score(df, bundle):
-    return bundle["model"].predict_proba(build_X(df, bundle))[:, 1]
+    return predict_risk(bundle, build_X(df, bundle))
 
 
 def bootstrap_ci(y, p, threshold, n_boot=N_BOOT, seed=42):

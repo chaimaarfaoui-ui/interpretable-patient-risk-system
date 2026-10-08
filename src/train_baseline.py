@@ -21,6 +21,8 @@ from sklearn.metrics import roc_auc_score, classification_report, brier_score_lo
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+from risk_model import calibrate, fit_calibration
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"
 MODEL_PATH = ROOT / "models" / "rf_model.pkl"
@@ -75,16 +77,25 @@ def run():
 
     print(f"Logistic Regression AUROC: {logreg_auc:.3f}")
     print(f"Random Forest AUROC:       {rf_auc:.3f}")
-    print(f"\nCalibration check (val): mean predicted risk {rf_proba.mean():.3f} "
-          f"vs actual rate {y_val.mean():.3f} | "
-          f"Brier score {brier_score_loss(y_val, rf_proba):.4f}")
 
-    # With a ~9% base rate, 0.5 is no longer a meaningful cutoff.
-    # Flag the top 20% highest-risk patients instead.
-    threshold = float(np.quantile(rf_proba, 0.80))
+    # Platt scaling: slope + intercept fitted on the validation set.
+    cal = fit_calibration(rf_proba, y_val)
+    cal_proba = calibrate(cal, rf_proba)
+    auc_after = roc_auc_score(y_val, cal_proba)
+    print("\nCalibration check (val, calibrator was fitted here, so judge on the test set):")
+    print(f"  before: mean predicted {rf_proba.mean():.3f} | "
+          f"Brier {brier_score_loss(y_val, rf_proba):.4f}")
+    print(f"  after:  mean predicted {cal_proba.mean():.3f} | "
+          f"Brier {brier_score_loss(y_val, cal_proba):.4f}")
+    print(f"  AUROC before/after: {rf_auc:.3f} / {auc_after:.3f} (must match)")
+    print(
+        f"  calibration slope {cal['slope']:.3f}, intercept {cal['intercept']:.3f}")
+
+    # Decision threshold lives on the CALIBRATED risk scale (top 20% flagged).
+    threshold = float(np.quantile(cal_proba, 0.80))
     print(
         f"\nRandom Forest classification report (val, threshold={threshold:.3f}):")
-    print(classification_report(y_val, (rf_proba >= threshold).astype(int),
+    print(classification_report(y_val, (cal_proba >= threshold).astype(int),
                                 target_names=["No Readmit", "Readmit"]))
 
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -94,6 +105,7 @@ def run():
             "num_cols": num_cols, "cat_cols": cat_cols,
             "feature_names": feature_names,
             "threshold": threshold,
+            "calibration": cal,
         }, f)
     print(f"Saved -> {MODEL_PATH}")
 

@@ -3,7 +3,7 @@
     "point": {
       "auroc": 0.6382023421646923,
       "auprc": 0.15557277245632148,
-      "brier": 0.08013744043351415,
+      "brier": 0.07966867491127477,
       "precision": 0.1603415559772296,
       "recall": 0.359192348565356
     },
@@ -17,8 +17,8 @@
         0.1747001251964701
       ],
       "brier": [
-        0.07615807039253514,
-        0.08450363470484921
+        0.07582448910860405,
+        0.0839665182156209
       ],
       "precision": [
         0.14482731616485786,
@@ -31,9 +31,9 @@
     },
     "n": 10496,
     "prevalence": 0.0896532012195122,
-    "mean_predicted_risk": 0.08948182262753776,
+    "mean_predicted_risk": 0.08942753213205662,
     "brier_baseline_base_rate": 0.08161550776143885,
-    "decision_threshold": 0.10847733008758058,
+    "decision_threshold": 0.1218684323035387,
     "share_flagged": 0.20083841463414634,
     "lift_at_threshold": 1.7884643693273132
   },
@@ -41,79 +41,79 @@
     {
       "index": "decile 1",
       "n": 1050,
-      "mean_predicted": 0.058543238078658376,
+      "mean_predicted": 0.03884506196183309,
       "actual_rate": 0.03428571428571429
     },
     {
       "index": "decile 2",
       "n": 1050,
-      "mean_predicted": 0.06625022553386278,
+      "mean_predicted": 0.04888062181264959,
       "actual_rate": 0.06
     },
     {
       "index": "decile 3",
       "n": 1049,
-      "mean_predicted": 0.07167136845728941,
+      "mean_predicted": 0.056635997156975454,
       "actual_rate": 0.0657769304099142
     },
     {
       "index": "decile 4",
       "n": 1050,
-      "mean_predicted": 0.07681666016877199,
+      "mean_predicted": 0.06447512632520008,
       "actual_rate": 0.06190476190476191
     },
     {
       "index": "decile 5",
       "n": 1049,
-      "mean_predicted": 0.08266912025360867,
+      "mean_predicted": 0.07393705639759493,
       "actual_rate": 0.07340324118207817
     },
     {
       "index": "decile 6",
       "n": 1050,
-      "mean_predicted": 0.08919779813664418,
+      "mean_predicted": 0.0851377893777812,
       "actual_rate": 0.0838095238095238
     },
     {
       "index": "decile 7",
       "n": 1049,
-      "mean_predicted": 0.09656070653195892,
+      "mean_predicted": 0.09855527800508579,
       "actual_rate": 0.0877025738798856
     },
     {
       "index": "decile 8",
       "n": 1050,
-      "mean_predicted": 0.10439739487527186,
+      "mean_predicted": 0.11369214537599352,
       "actual_rate": 0.10761904761904761
     },
     {
       "index": "decile 9",
       "n": 1049,
-      "mean_predicted": 0.11290041824264772,
+      "mean_predicted": 0.13105968377227692,
       "actual_rate": 0.12774070543374644
     },
     {
       "index": "decile 10",
       "n": 1050,
-      "mean_predicted": 0.13581689058997368,
+      "mean_predicted": 0.18305892102736968,
       "actual_rate": 0.19428571428571428
     }
   ],
   "gate_buckets": [
     {
       "index": "Low confidence (near threshold)",
-      "n": 1090,
-      "share": 0.10384908536585366,
-      "readmit_rate": 0.12018348623853212,
-      "mean_predicted": 0.10835256760390646,
-      "accuracy_at_threshold": 0.501834862385321
+      "n": 1095,
+      "share": 0.10432545731707317,
+      "readmit_rate": 0.12146118721461187,
+      "mean_predicted": 0.12153707458691991,
+      "accuracy_at_threshold": 0.5068493150684932
     },
     {
       "index": "Anomaly flagged",
       "n": 218,
       "share": 0.020769817073170733,
       "readmit_rate": 0.1834862385321101,
-      "mean_predicted": 0.13201262175599177,
+      "mean_predicted": 0.17816807559301526,
       "accuracy_at_threshold": 0.37155963302752293
     },
     {
@@ -121,24 +121,24 @@
       "n": 817,
       "share": 0.07783917682926829,
       "readmit_rate": 0.204406364749082,
-      "mean_predicted": 0.14021308313586248,
+      "mean_predicted": 0.19332321175290848,
       "accuracy_at_threshold": 0.204406364749082
     },
     {
       "index": "ANY gate -> human review",
-      "n": 1976,
-      "share": 0.18826219512195122,
-      "readmit_rate": 0.15435222672064777,
-      "mean_predicted": 0.1212056592887965,
-      "accuracy_at_threshold": 0.3805668016194332
+      "n": 1980,
+      "share": 0.18864329268292682,
+      "readmit_rate": 0.15505050505050505,
+      "mean_predicted": 0.1506116474282052,
+      "accuracy_at_threshold": 0.38333333333333336
     },
     {
       "index": "No gate -> auto-handled",
-      "n": 8520,
-      "share": 0.8117378048780488,
-      "readmit_rate": 0.07464788732394366,
-      "mean_predicted": 0.08212427553333035,
-      "accuracy_at_threshold": 0.8651408450704225
+      "n": 8516,
+      "share": 0.8113567073170732,
+      "readmit_rate": 0.07444809769844998,
+      "mean_predicted": 0.07520200978748472,
+      "accuracy_at_threshold": 0.864725223109441
     }
   ],
   "subgroups": {
@@ -147,7 +147,7 @@
         "group": "Female",
         "n": 5585,
         "readmit_rate": 0.09113697403760071,
-        "mean_predicted": 0.09051122828626577,
+        "mean_predicted": 0.09141586325154394,
         "flag_rate": 0.22041181736794987,
         "recall": 0.38703339882121807,
         "auroc": 0.6504622856355499
@@ -156,7 +156,7 @@
         "group": "Male",
         "n": 4911,
         "readmit_rate": 0.08796579108124618,
-        "mean_predicted": 0.08831113832617431,
+        "mean_predicted": 0.08716631663575514,
         "flag_rate": 0.17857870087558542,
         "recall": 0.3263888888888889,
         "auroc": 0.622482593667568
@@ -167,7 +167,7 @@
         "group": "[0-10)",
         "n": 24,
         "readmit_rate": 0.0,
-        "mean_predicted": 0.058241863157757257,
+        "mean_predicted": 0.039194768827327156,
         "flag_rate": 0.0,
         "recall": null,
         "auroc": null
@@ -176,7 +176,7 @@
         "group": "[10-20)",
         "n": 80,
         "readmit_rate": 0.0625,
-        "mean_predicted": 0.07329656707088916,
+        "mean_predicted": 0.06259721821213511,
         "flag_rate": 0.0625,
         "recall": 0.2,
         "auroc": null
@@ -185,7 +185,7 @@
         "group": "[20-30)",
         "n": 155,
         "readmit_rate": 0.05161290322580645,
-        "mean_predicted": 0.07803273625374048,
+        "mean_predicted": 0.06963700816881378,
         "flag_rate": 0.07096774193548387,
         "recall": 0.375,
         "auroc": null
@@ -194,7 +194,7 @@
         "group": "[30-40)",
         "n": 407,
         "readmit_rate": 0.04914004914004914,
-        "mean_predicted": 0.07996825050369477,
+        "mean_predicted": 0.07370759769641963,
         "flag_rate": 0.10319410319410319,
         "recall": 0.3,
         "auroc": null
@@ -203,7 +203,7 @@
         "group": "[40-50)",
         "n": 994,
         "readmit_rate": 0.06941649899396378,
-        "mean_predicted": 0.08182566103804552,
+        "mean_predicted": 0.07581037617884084,
         "flag_rate": 0.11468812877263582,
         "recall": 0.21739130434782608,
         "auroc": 0.6038542890716804
@@ -212,7 +212,7 @@
         "group": "[50-60)",
         "n": 1859,
         "readmit_rate": 0.07638515330823023,
-        "mean_predicted": 0.08019274308626989,
+        "mean_predicted": 0.07306297883783859,
         "flag_rate": 0.08660570199031738,
         "recall": 0.2323943661971831,
         "auroc": 0.6477806852764811
@@ -221,7 +221,7 @@
         "group": "[60-70)",
         "n": 2414,
         "readmit_rate": 0.08326429163214581,
-        "mean_predicted": 0.08869722520350916,
+        "mean_predicted": 0.08762000393500345,
         "flag_rate": 0.17978458989229495,
         "recall": 0.31343283582089554,
         "auroc": 0.604447262107897
@@ -230,7 +230,7 @@
         "group": "[70-80)",
         "n": 2608,
         "readmit_rate": 0.11196319018404909,
-        "mean_predicted": 0.09469023980462109,
+        "mean_predicted": 0.09864329388714267,
         "flag_rate": 0.26380368098159507,
         "recall": 0.4349315068493151,
         "auroc": 0.6362913147372654
@@ -239,7 +239,7 @@
         "group": "[80-90)",
         "n": 1666,
         "readmit_rate": 0.10384153661464586,
-        "mean_predicted": 0.1008920924798761,
+        "mean_predicted": 0.10986038083013407,
         "flag_rate": 0.35294117647058826,
         "recall": 0.4624277456647399,
         "auroc": 0.6063053401422438
@@ -248,7 +248,7 @@
         "group": "[90-100)",
         "n": 289,
         "readmit_rate": 0.10726643598615918,
-        "mean_predicted": 0.09595515069361962,
+        "mean_predicted": 0.10002356684965838,
         "flag_rate": 0.22491349480968859,
         "recall": 0.3225806451612903,
         "auroc": null
@@ -259,7 +259,7 @@
         "group": "AfricanAmerican",
         "n": 1886,
         "readmit_rate": 0.08960763520678686,
-        "mean_predicted": 0.08599625854570106,
+        "mean_predicted": 0.08304847079803804,
         "flag_rate": 0.14687168610816542,
         "recall": 0.28402366863905326,
         "auroc": 0.6464212728268999
@@ -268,7 +268,7 @@
         "group": "Asian",
         "n": 73,
         "readmit_rate": 0.1232876712328767,
-        "mean_predicted": 0.08650493456658183,
+        "mean_predicted": 0.08465896821753602,
         "flag_rate": 0.1917808219178082,
         "recall": 0.5555555555555556,
         "auroc": null
@@ -277,7 +277,7 @@
         "group": "Caucasian",
         "n": 7857,
         "readmit_rate": 0.09176530482372407,
-        "mean_predicted": 0.09062365314428451,
+        "mean_predicted": 0.0915139966463164,
         "flag_rate": 0.2171312205676467,
         "recall": 0.3786407766990291,
         "auroc": 0.6332704639172052
@@ -286,7 +286,7 @@
         "group": "Hispanic",
         "n": 221,
         "readmit_rate": 0.06334841628959276,
-        "mean_predicted": 0.08862342733426974,
+        "mean_predicted": 0.08839241624765831,
         "flag_rate": 0.20361990950226244,
         "recall": 0.42857142857142855,
         "auroc": null
@@ -295,7 +295,7 @@
         "group": "Missing",
         "n": 279,
         "readmit_rate": 0.06451612903225806,
-        "mean_predicted": 0.08493529039380707,
+        "mean_predicted": 0.08068642648517031,
         "flag_rate": 0.12903225806451613,
         "recall": 0.16666666666666666,
         "auroc": null
@@ -304,7 +304,7 @@
         "group": "Other",
         "n": 180,
         "readmit_rate": 0.05555555555555555,
-        "mean_predicted": 0.08547022357052493,
+        "mean_predicted": 0.08194526679379714,
         "flag_rate": 0.16666666666666666,
         "recall": 0.3,
         "auroc": null
@@ -312,7 +312,7 @@
     ]
   },
   "gate_cutoffs_from_val": {
-    "high_stakes": 0.12247866941408579,
-    "low_conf_halfwidth": 0.004249897905378448
+    "high_stakes": 0.1516170352715231,
+    "low_conf_halfwidth": 0.008672764237744157
   }
 }

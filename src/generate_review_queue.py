@@ -22,6 +22,8 @@ import numpy as np
 import pandas as pd
 import shap
 
+from risk_model import local_slope, predict_risk, raw_proba
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"
 MODEL_PATH = ROOT / "models" / "rf_model.pkl"
@@ -111,7 +113,7 @@ def run():
 
     val = pd.read_csv(f"{DATA_DIR}/val.csv")
     X_val = build_X(val, bundle)
-    val["predicted_risk"] = model.predict_proba(X_val)[:, 1]
+    val["predicted_risk"] = predict_risk(bundle, X_val)
 
     decision_threshold = bundle.get("threshold")
     if decision_threshold is None:
@@ -147,11 +149,17 @@ def run():
     else:
         shap_pos = shap_values
 
+    # SHAP is computed on the raw forest; rescale each patient's contributions by the
+    # local slope of the calibration curve so they match the displayed (calibrated) risk.
+    slopes = local_slope(bundle.get("calibration"),
+                         raw_proba(bundle, X_sample))
+
     records = []
     for i, row in sample.iterrows():
         contributions = sorted(
             zip(feature_names, shap_pos[i]), key=lambda x: abs(x[1]), reverse=True)[:3]
-        effects = [round(float(v), 4) for _, v in contributions]
+        effects = [round(float(v) * float(slopes[i]), 4)
+                   for _, v in contributions]
         reasons = []
         for feat, val_ in contributions:
             direction = "increased" if val_ > 0 else "decreased"
